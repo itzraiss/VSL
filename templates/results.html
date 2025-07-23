@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Resultados - Transcritor de Áudio</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        padding: 20px;
+      }
+
+      .container {
+        max-width: 800px;
+        margin: 0 auto;
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+      }
+
+      .header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 30px;
+        text-align: center;
+      }
+
+      h1 {
+        font-size: 2rem;
+        margin-bottom: 10px;
+      }
+
+      .subtitle {
+        opacity: 0.9;
+        font-size: 1.1rem;
+      }
+
+      .content {
+        padding: 30px;
+      }
+
+      .no-results {
+        text-align: center;
+        padding: 60px 20px;
+        color: #666;
+      }
+
+      .no-results-icon {
+        font-size: 4rem;
+        margin-bottom: 20px;
+        opacity: 0.5;
+      }
+
+      .files-grid {
+        display: grid;
+        gap: 20px;
+        margin-top: 20px;
+      }
+
+      .file-card {
+        background: #f8f9fa;
+        border: 2px solid #e9ecef;
+        border-radius: 15px;
+        padding: 20px;
+        transition: all 0.3s ease;
+        position: relative;
+      }
+
+      .file-card:hover {
+        border-color: #667eea;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+      }
+
+      .file-info {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 15px;
+      }
+
+      .file-details {
+        flex: 1;
+        min-width: 200px;
+      }
+
+      .file-name {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 8px;
+        word-break: break-all;
+      }
+
+      .file-meta {
+        display: flex;
+        gap: 20px;
+        color: #666;
+        font-size: 0.9rem;
+        flex-wrap: wrap;
+      }
+
+      .meta-item {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+      }
+
+      .file-actions {
+        display: flex;
+        gap: 10px;
+      }
+
+      .btn {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+      }
+
+      .btn-secondary {
+        background: #6c757d;
+      }
+
+      .btn-small {
+        padding: 8px 15px;
+        font-size: 0.85rem;
+      }
+
+      .navigation {
+        text-align: center;
+        margin-top: 30px;
+        padding-top: 30px;
+        border-top: 1px solid #eee;
+      }
+
+      .stats {
+        background: #e8f4fd;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 30px;
+        text-align: center;
+      }
+
+      .stats-number {
+        font-size: 2rem;
+        font-weight: bold;
+        color: #667eea;
+      }
+
+      .stats-label {
+        color: #666;
+        margin-top: 5px;
+      }
+
+      /* Upload de transcrição */
+      .upload-section {
+          background: white;
+          border-radius: 16px;
+          padding: 30px;
+          margin-bottom: 30px;
+          box-shadow: var(--shadow-lg);
+      }
+
+      .upload-area {
+          border: 2px dashed #e5e7eb;
+          border-radius: 12px;
+          padding: 40px;
+          text-align: center;
+          cursor: pointer;
+          transition: all 0.3s ease;
+      }
+
+      .upload-area:hover {
+          border-color: var(--primary-color);
+          background: rgba(102, 126, 234, 0.05);
+      }
+
+      .upload-icon {
+          font-size: 3em;
+          color: var(--primary-color);
+          margin-bottom: 15px;
+      }
+
+      .upload-text {
+          color: #6b7280;
+      }
+
+      /* Ações nos cards */
+      .file-actions {
+          display: flex;
+          gap: 10px;
+      }
+
+      .action-btn {
+          padding: 8px;
+          border: none;
+          border-radius: 8px;
+          background: none;
+          color: #6b7280;
+          cursor: pointer;
+          transition: all 0.3s ease;
+      }
+
+      .action-btn:hover {
+          background: #f3f4f6;
+          color: var(--primary-color);
+      }
+
+      .action-btn.delete:hover {
+          background: #fee2e2;
+          color: #dc2626;
+      }
+
+      @media (max-width: 600px) {
+        .container {
+          margin: 10px;
+          border-radius: 15px;
+        }
+
+        .header {
+          padding: 20px;
+        }
+
+        h1 {
+          font-size: 1.6rem;
+        }
+
+        .content {
+          padding: 20px;
+        }
+
+        .file-info {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+
+        .file-actions {
+          width: 100%;
+          justify-content: flex-end;
+        }
+
+        .file-meta {
+          flex-direction: column;
+          gap: 8px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>📂 Resultados das Transcrições</h1>
+        <p class="subtitle">Arquivos JSON gerados pelo sistema</p>
+      </div>
+
+      <div class="content">
+        {% if files %}
+        <div class="stats">
+          <div class="stats-number">{{ files|length }}</div>
+          <div class="stats-label">
+            {% if files|length == 1 %} arquivo disponível {% else %} arquivos
+            disponíveis {% endif %}
+          </div>
+        </div>
+
+        <div class="upload-section">
+            <div class="upload-area" onclick="document.getElementById('uploadInput').click()">
+                <input type="file" id="uploadInput" accept=".json" style="display: none;" onchange="uploadTranscription(this)">
+                <div class="upload-icon">
+                    <i class="ri-upload-cloud-line"></i>
+                </div>
+                <div class="upload-text">
+                    Clique ou arraste um arquivo JSON para fazer upload
+                </div>
+          </div>
+        </div>
+
+        <div class="files-grid">
+          {% for file in files %}
+          <div class="file-card">
+            <div class="file-info">
+              <div class="file-details">
+                <div class="file-name">📄 {{ file.name }}</div>
+                <div class="file-meta">
+                  <div class="meta-item">
+                    <span>📏</span>
+                    <span>{{ file.size }} KB</span>
+                  </div>
+                  <div class="meta-item">
+                    <span>📅</span>
+                    <span>{{ file.modified }}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="file-actions">
+                <button class="action-btn" onclick="window.location.href='/download/{{ file.name }}'">
+                    <i class="ri-download-line"></i>
+                </button>
+                <button class="action-btn" onclick="editTranscription('{{ file.name }}')">
+                    <i class="ri-edit-line"></i>
+                </button>
+                <button class="action-btn delete" onclick="deleteTranscription('{{ file.name }}')">
+                    <i class="ri-delete-bin-line"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        {% else %}
+        <div class="no-results">
+          <div class="no-results-icon">📭</div>
+          <h3>Nenhuma transcrição encontrada</h3>
+          <p>Você ainda não transcreveu nenhum arquivo de áudio.</p>
+        </div>
+        {% endif %}
+
+        <div class="navigation">
+          <a href="/" class="btn"> 🎙️ Nova Transcrição </a>
+          <a href="javascript:location.reload()" class="btn btn-secondary">
+            🔄 Atualizar Lista
+          </a>
+        </div>
+      </div>
+    </div>
+
+<script>
+async function uploadTranscription(input) {
+    const file = input.files[0];
+    if (!file) return;
+    
+    const formData = new FormData();
+    formData.append('file', file);
+    
+    try {
+        const response = await fetch('/upload_transcription', {
+            method: 'POST',
+            body: formData
+        });
+        
+        const result = await response.json();
+        if (result.success) {
+            location.reload();
+        } else {
+            throw new Error(result.error);
+        }
+    } catch (error) {
+        alert('Erro ao fazer upload: ' + error.message);
+    }
+    
+    input.value = '';
+}
+
+function editTranscription(filename) {
+    // Redirecionar para o VSL Player com o arquivo selecionado
+    window.location.href = `/vsl?file=${encodeURIComponent(filename)}`;
+}
+
+async function deleteTranscription(filename) {
+    if (!confirm('Tem certeza que deseja excluir esta transcrição?')) return;
+    
+    try {
+        const response = await fetch(`/delete_transcription/${filename}`);
+        const result = await response.json();
+        
+        if (result.success) {
+            location.reload();
+        } else {
+            throw new Error(result.error);
+        }
+    } catch (error) {
+        alert('Erro ao excluir: ' + error.message);
+    }
+}
+
+// Drag and drop
+const uploadArea = document.querySelector('.upload-area');
+
+uploadArea.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    uploadArea.style.borderColor = 'var(--primary-color)';
+    uploadArea.style.background = 'rgba(102, 126, 234, 0.05)';
+});
+
+uploadArea.addEventListener('dragleave', () => {
+    uploadArea.style.borderColor = '#e5e7eb';
+    uploadArea.style.background = 'none';
+});
+
+uploadArea.addEventListener('drop', (e) => {
+    e.preventDefault();
+    uploadArea.style.borderColor = '#e5e7eb';
+    uploadArea.style.background = 'none';
+    
+    const file = e.dataTransfer.files[0];
+    if (file && file.name.endsWith('.json')) {
+        const input = document.getElementById('uploadInput');
+        input.files = e.dataTransfer.files;
+        uploadTranscription(input);
+    } else {
+        alert('Por favor, selecione um arquivo JSON válido.');
+    }
+});
+</script>
+  </body>
+</html>

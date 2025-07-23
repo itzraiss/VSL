@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VSL Studio - Transcrição e Apresentação</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --primary-color: #667eea;
+            --secondary-color: #764ba2;
+            --background-color: #f9fafb;
+            --sidebar-width: 280px;
+            --header-height: 70px;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.12);
+            --shadow-md: 0 4px 6px rgba(0,0,0,0.1);
+            --shadow-lg: 0 10px 15px rgba(0,0,0,0.1);
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--background-color);
+            color: #111827;
+            min-height: 100vh;
+            display: flex;
+        }
+        
+        /* Sidebar */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: white;
+            border-right: 1px solid #e5e7eb;
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 0.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .logo img {
+            width: 40px;
+            height: 40px;
+        }
+        
+        .logo-text {
+            font-size: 1.25rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .nav-menu {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .nav-item {
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 1rem;
+            color: #4b5563;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-link i {
+            font-size: 1.25rem;
+        }
+        
+        .nav-item:hover {
+            background: #f3f4f6;
+        }
+        
+        .nav-item.active {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        }
+        
+        .nav-item.active .nav-link {
+            color: white;
+        }
+        
+        /* Main Content */
+        .main-content {
+            margin-left: var(--sidebar-width);
+            flex: 1;
+            padding: 2rem;
+            max-height: 100vh;
+            overflow-y: auto;
+        }
+        
+        .page-header {
+            margin-bottom: 2rem;
+        }
+        
+        .page-title {
+            font-size: 1.875rem;
+            font-weight: 700;
+            color: #111827;
+            margin-bottom: 0.5rem;
+        }
+        
+        .page-subtitle {
+            color: #6b7280;
+            font-size: 1rem;
+        }
+        
+        /* Frames */
+        .frame-container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: var(--shadow-lg);
+            height: calc(100vh - 160px);
+            overflow: hidden;
+        }
+        
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        
+        /* Responsividade */
+        @media (max-width: 1024px) {
+            .sidebar {
+                width: 80px;
+                padding: 1rem 0.5rem;
+            }
+            
+            .logo-text, .nav-text {
+                display: none;
+            }
+            
+            .main-content {
+                margin-left: 80px;
+            }
+            
+            .nav-link {
+                justify-content: center;
+                padding: 1rem;
+            }
+        }
+        
+        @media (max-width: 640px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: fixed;
+                bottom: 0;
+                top: auto;
+                border-right: none;
+                border-top: 1px solid #e5e7eb;
+                padding: 0.5rem;
+                z-index: 100;
+            }
+            
+            .logo {
+                display: none;
+            }
+            
+            .nav-menu {
+                flex-direction: row;
+                justify-content: space-around;
+            }
+            
+            .nav-link {
+                padding: 0.75rem;
+            }
+            
+            .main-content {
+                margin-left: 0;
+                padding-bottom: 80px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="logo">
+            <i class="ri-mic-line" style="font-size: 2rem; background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;"></i>
+            <span class="logo-text">VSL Studio</span>
+        </div>
+        
+        <nav>
+            <ul class="nav-menu">
+                <li class="nav-item active" data-page="transcricao">
+                    <a href="#" class="nav-link">
+                        <i class="ri-file-text-line"></i>
+                        <span class="nav-text">Transcrição</span>
+                    </a>
+                </li>
+                <li class="nav-item" data-page="vsl">
+                    <a href="#" class="nav-link">
+                        <i class="ri-video-line"></i>
+                        <span class="nav-text">VSL Player</span>
+                    </a>
+                </li>
+                <li class="nav-item" data-page="resultados">
+                    <a href="#" class="nav-link">
+                        <i class="ri-folder-line"></i>
+                        <span class="nav-text">Resultados</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <header class="page-header">
+            <h1 class="page-title">Transcrição de Áudio</h1>
+            <p class="page-subtitle">Transforme seu áudio em texto com IA</p>
+        </header>
+        
+        <div class="frame-container">
+            <iframe id="contentFrame" src="/transcricao" frameborder="0"></iframe>
+        </div>
+    </main>
+
+    <script>
+        // Navegação
+        const navItems = document.querySelectorAll('.nav-item');
+        const pageTitle = document.querySelector('.page-title');
+        const pageSubtitle = document.querySelector('.page-subtitle');
+        const contentFrame = document.getElementById('contentFrame');
+        
+        const pages = {
+            transcricao: {
+                title: 'Transcrição de Áudio',
+                subtitle: 'Transforme seu áudio em texto com IA',
+                url: '/transcricao'
+            },
+            vsl: {
+                title: 'VSL Player',
+                subtitle: 'Crie apresentações profissionais',
+                url: '/vsl'
+            },
+            resultados: {
+                title: 'Resultados',
+                subtitle: 'Visualize suas transcrições',
+                url: '/results'
+            }
+        };
+        
+        navItems.forEach(item => {
+            item.addEventListener('click', () => {
+                // Remove active class
+                navItems.forEach(nav => nav.classList.remove('active'));
+                
+                // Add active class
+                item.classList.add('active');
+                
+                // Update content
+                const page = pages[item.dataset.page];
+                pageTitle.textContent = page.title;
+                pageSubtitle.textContent = page.subtitle;
+                contentFrame.src = page.url;
+            });
+        });
+    </script>
+</body>
+</html> 

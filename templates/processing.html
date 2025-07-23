@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Processando - Transcritor de Áudio</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 2rem;
+        }
+        
+        .file-info {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+        
+        .file-name {
+            font-weight: bold;
+            color: #333;
+            font-size: 1.1rem;
+        }
+        
+        .status-container {
+            margin: 30px 0;
+        }
+        
+        .spinner {
+            width: 60px;
+            height: 60px;
+            border: 6px solid #f3f3f3;
+            border-top: 6px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .status-text {
+            font-size: 1.1rem;
+            color: #666;
+            margin-bottom: 10px;
+        }
+        
+        .status-message {
+            color: #333;
+            font-weight: 500;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #eee;
+            border-radius: 4px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            width: 0%;
+            transition: width 0.5s ease;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 0.6; }
+            50% { opacity: 1; }
+            100% { opacity: 0.6; }
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            margin: 10px;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 15px rgba(0,0,0,0.2);
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+        }
+        
+        .success-icon {
+            font-size: 4rem;
+            color: #28a745;
+            margin-bottom: 20px;
+        }
+        
+        .error-icon {
+            font-size: 4rem;
+            color: #dc3545;
+            margin-bottom: 20px;
+        }
+        
+        .result-info {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        
+        .error-info {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            color: #721c24;
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+        
+        @media (max-width: 600px) {
+            .container {
+                padding: 30px 20px;
+                margin: 10px;
+            }
+            
+            h1 {
+                font-size: 1.6rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 id="page-title">🎙️ Processando Transcrição</h1>
+        
+        <div class="file-info">
+            <div class="file-name">📄 {{ filename }}</div>
+        </div>
+        
+        <!-- Estado: Processando -->
+        <div id="processing-state" class="status-container">
+            <div class="spinner"></div>
+            <div class="status-text">Status:</div>
+            <div class="status-message" id="status-message">Aguardando processamento...</div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progress-fill" style="width: 20%;"></div>
+            </div>
+        </div>
+        
+        <!-- Estado: Concluído -->
+        <div id="success-state" class="status-container hidden">
+            <div class="success-icon">✅</div>
+            <div class="status-text">Transcrição concluída!</div>
+            <div class="result-info">
+                <div>Arquivo gerado: <span id="output-filename"></span></div>
+            </div>
+            <a href="#" class="btn btn-success" id="download-btn">
+                📥 Baixar Transcrição
+            </a>
+        </div>
+        
+        <!-- Estado: Erro -->
+        <div id="error-state" class="status-container hidden">
+            <div class="error-icon">❌</div>
+            <div class="status-text">Erro no processamento</div>
+            <div class="error-info">
+                <div id="error-message">Ocorreu um erro durante a transcrição.</div>
+            </div>
+        </div>
+        
+        <!-- Botões de navegação -->
+        <div style="margin-top: 30px;">
+            <a href="/" class="btn btn-secondary">🔙 Nova Transcrição</a>
+            <a href="/results" class="btn btn-secondary">📂 Ver Resultados</a>
+        </div>
+    </div>
+
+    <script>
+    const jobId = '{{ job_id }}';
+    let progressWidth = 20;
+
+    const processingState = document.getElementById('processing-state');
+    const successState = document.getElementById('success-state');
+    const errorState = document.getElementById('error-state');
+    const statusMessage = document.getElementById('status-message');
+    const progressFill = document.getElementById('progress-fill');
+    const pageTitle = document.getElementById('page-title');
+    const downloadBtn = document.getElementById('download-btn');
+    const outputFilename = document.getElementById('output-filename');
+    const errorMessage = document.getElementById('error-message');
+
+    function checkJobStatus() {
+        fetch(`/status/${jobId}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'completed') {
+                    processingState.classList.add('hidden');
+                    successState.classList.remove('hidden');
+                    pageTitle.innerText = '✅ Transcrição Concluída';
+                    statusMessage.innerText = data.message;
+                    outputFilename.innerText = data.output_file;
+                    downloadBtn.href = `/download/${data.output_file}`;
+                } else if (data.status === 'error') {
+                    processingState.classList.add('hidden');
+                    errorState.classList.remove('hidden');
+                    pageTitle.innerText = '❌ Erro na Transcrição';
+                    errorMessage.innerText = data.message;
+                } else {
+                    statusMessage.innerText = data.message || 'Aguardando...';
+                    progressWidth = Math.min(progressWidth + 5, 95);
+                    progressFill.style.width = `${progressWidth}%`;
+                    setTimeout(checkJobStatus, 3000);
+                }
+            })
+            .catch(err => {
+                statusMessage.innerText = 'Erro ao verificar status.';
+                console.error(err);
+                setTimeout(checkJobStatus, 5000);
+            });
+    }
+
+    setTimeout(checkJobStatus, 3000);
+</script>
