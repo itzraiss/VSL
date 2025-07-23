@@ -1,0 +1,53 @@
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Python
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+.venv
+venv/
+env/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Documentation (keep README.md)
+*.md
+!README.md
+!PERFORMANCE_OPTIMIZATIONS.md
+
+# Large files that shouldn't be in container
+*.mp4
+*.mp3
+*.wav
+*.m4a
+*.flac
+*.ogg
+
+# Cache directories (will be created in container)
+cache/
+temp/
+uploads/
+outputs/
+models/
+
+# Performance monitoring (not needed in container)
+performance.log
+performance_monitor.py

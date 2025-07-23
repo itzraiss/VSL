@@ -47,12 +47,6 @@ RUN mkdir -p uploads outputs templates temp cache models \
     && mkdir -p /home/app/.cache/huggingface /home/app/.config/matplotlib \
     && chown -R app:app /app /home/app/.cache /home/app/.config
 
-# Mover arquivos HTML para templates se necessário
-RUN if [ -f index.html ]; then mv index.html templates/; fi && \
-    if [ -f processing.html ]; then mv processing.html templates/; fi && \
-    if [ -f results.html ]; then mv results.html templates/; fi && \
-    if [ -f vsl.html ]; then mv vsl.html templates/; fi
-
 # Mudança para usuário não-root
 USER app
 
@@ -72,12 +66,8 @@ ENV OMP_NUM_THREADS=2 \
     MKL_NUM_THREADS=2 \
     TOKENIZERS_PARALLELISM=false
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
-    CMD python -c "import requests; requests.get('http://localhost:7860/', timeout=10)" || exit 1
-
-# Expor porta
+# Expor porta (Hugging Face Spaces usa a porta 7860)
 EXPOSE 7860
 
-# Comando para iniciar a aplicação
+# Comando para iniciar a aplicação (compatível com Hugging Face Spaces)
 CMD ["python", "app.py"]

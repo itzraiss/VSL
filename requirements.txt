@@ -1,6 +1,6 @@
-# Core dependencies with optimized versions
-torch==2.0.1 --index-url https://download.pytorch.org/whl/cpu
-torchaudio==2.0.2 --index-url https://download.pytorch.org/whl/cpu
+# Core dependencies with optimized versions for Hugging Face Spaces
+torch==2.0.1
+torchaudio==2.0.2
 whisperx==3.1.1
 transformers==4.30.2
 
@@ -28,5 +28,5 @@ tqdm==4.66.1
 requests==2.31.0
 
 # Performance improvements
-psutil==5.9.6  # For system monitoring
-gunicorn==21.2.0  # Production WSGI server
+psutil==5.9.6
+gunicorn==21.2.0

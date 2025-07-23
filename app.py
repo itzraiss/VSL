@@ -24,7 +24,6 @@ if os.environ.get('FLASK_ENV') == 'development':
     app.wsgi_app = ProfilerMiddleware(app.wsgi_app)
 
 # Production configuration with optimizations
-@app.before_first_request
 def setup_production():
     """Configure production settings"""
     if not app.debug:
@@ -657,16 +656,26 @@ def save_transcription():
         return jsonify({'success': False, 'error': str(e)})
 
 if __name__ == '__main__':
-    # Production vs development configuration
-    debug_mode = os.environ.get('FLASK_ENV') == 'development'
+    # Configuração para Hugging Face Spaces
+    import os
+    
+    # Configurar produção
+    setup_production()
+    
+    # Porta padrão do Hugging Face Spaces
     port = int(os.environ.get('PORT', 7860))
     
-    if debug_mode:
-        app.run(host='0.0.0.0', port=port, debug=True)
-    else:
-        # Use gunicorn in production
-        print(f"[INFO] Starting production server on port {port}")
-        app.run(host='0.0.0.0', port=port, debug=False, threaded=True)
+    # Configuração otimizada para produção
+    print(f"[INFO] Starting VSL Transcription App on port {port}")
+    print(f"[INFO] Debug mode: {os.environ.get('FLASK_ENV') == 'development'}")
+    
+    # Executar aplicação
+    app.run(
+        host='0.0.0.0', 
+        port=port, 
+        debug=False,  # Sempre False em produção
+        threaded=True
+    )
 
 # Cleanup de recursos ao sair da aplicação
 import atexit
