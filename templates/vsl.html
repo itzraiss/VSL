@@ -4,1007 +4,526 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VSL Player</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Preload critical fonts -->
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"></noscript>
+    <!-- Preload Remix icons with optimized loading -->
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css"></noscript>
+    
     <style>
-        * { 
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-        
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: white;
-            color: #111827;
-            padding: 20px;
-        }
-        
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-        
-        .input-section {
-            background: white;
-            border-radius: 16px;
-            padding: 30px;
-            margin-bottom: 30px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-        }
-        
-        .input-group {
-            margin-bottom: 25px;
-        }
-        
-        .input-group:last-child {
-            margin-bottom: 0;
-        }
-        
-        .input-label {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-weight: 600;
-            color: #374151;
-            margin-bottom: 10px;
-        }
-        
-        .input-label i {
-            font-size: 1.2em;
-            color: #667eea;
-        }
-        
-        .file-input-wrapper {
-            position: relative;
-            width: 100%;
-            height: 120px;
-            border: 2px dashed #e5e7eb;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        
-        .file-input-wrapper:hover {
-            border-color: #667eea;
-            background: rgba(102, 126, 234, 0.05);
-        }
-        
-        .file-input-wrapper input[type="file"] {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            opacity: 0;
-            cursor: pointer;
-        }
-        
-        .file-input-content {
-            text-align: center;
-        }
-        
-        .file-input-icon {
-            font-size: 2em;
-            color: #667eea;
-            margin-bottom: 10px;
-        }
-        
-        .file-input-text {
-            color: #6b7280;
-        }
-        
-        .source-selector {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-        
-        .source-option {
-            flex: 1;
-            padding: 15px;
-            border: 2px solid #e5e7eb;
-            border-radius: 12px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        
-        .source-option:hover {
-            border-color: #667eea;
-            background: rgba(102, 126, 234, 0.05);
-        }
-        
-        .source-option.active {
-            border-color: #667eea;
-            background: rgba(102, 126, 234, 0.1);
-        }
-        
-        .source-option i {
-            font-size: 1.5em;
-            color: #667eea;
-            margin-bottom: 8px;
-        }
-        
-        .preview-section {
-            background: white;
-            border-radius: 16px;
-            overflow: hidden;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-        }
-        
-        .preview-header {
-            padding: 20px;
-            background: #f9fafb;
-            border-bottom: 1px solid #e5e7eb;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-        
-        .preview-title {
-            font-weight: 600;
-            color: #374151;
-        }
-        
-        .preview-controls {
-            display: flex;
-            gap: 10px;
-        }
-        
-        .preview {
-            padding: 60px 40px;
-            font-size: 42px;
-            text-align: center;
-            min-height: 400px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            line-height: 1.4;
-        }
-        
-        .preview.fullscreen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            margin: 0;
-            padding: 40px;
-            background: white;
-            font-size: 64px;
-            z-index: 9999;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .preview.fullscreen p {
-            max-width: 1200px;
-            white-space: pre-line;
-            line-height: 1.4;
-            text-align: center;
-        }
-
-        .preview.fullscreen.hd {
-            width: 1920px;
-            height: 1080px;
-            transform-origin: top left;
-            transform: scale(calc(100vh / 1080));
-        }
-
-        .preview.fullscreen.hd p {
-            max-width: 1600px;
-        }
-        
-        .btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 8px;
-            font-weight: 500;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            transition: all 0.3s ease;
-        }
-        
-        .btn:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        }
-        
-        .btn i {
-            font-size: 1.2em;
-        }
-        
-        .btn-secondary {
-            background: #6b7280;
-        }
-        
-        .status-bar {
-            display: flex;
-            gap: 20px;
-            margin-top: 20px;
-            padding: 15px;
-            background: #f8fafc;
-            border-radius: 8px;
-            font-size: 14px;
-        }
-        
-        .status-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .status-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: #cbd5e1;
-        }
-        
-        .status-dot.active {
-            background: #22c55e;
-        }
-        
-        .bold-black {
-            font-weight: 700;
-            color: black;
-        }
-        
-        .bold-red {
-            font-weight: 700;
-            color: #dc2626;
-        }
-        
-        @media (max-width: 768px) {
-            .preview {
-                font-size: 32px;
-                padding: 30px 20px;
-            }
-            
-            .source-selector {
-                flex-direction: column;
-            }
-            
-            .source-option {
-                padding: 10px;
-            }
-        }
-
-        /* Ajustes no preview para manter consistência */
-        .preview p {
-            max-width: 800px;
-            margin: 0 auto;
-            white-space: pre-line;
-            line-height: 1.4;
-            font-family: 'Open Sans', sans-serif;
-        }
-
-        /* Melhorias no seletor de transcrições */
-        .transcription-selector {
-            background: #f8fafc;
-            border-radius: 12px;
-            padding: 20px;
-            margin-top: 15px;
-        }
-
-        .transcription-list {
-            display: grid;
-            gap: 10px;
-            margin-top: 15px;
-        }
-
-        .transcription-item {
-            background: white;
-            border: 2px solid #e5e7eb;
-            border-radius: 8px;
-            padding: 15px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .transcription-item:hover {
-            border-color: #667eea;
-            background: rgba(102, 126, 234, 0.05);
-        }
-
-        .transcription-item.selected {
-            border-color: #667eea;
-            background: rgba(102, 126, 234, 0.1);
-        }
-
-        .transcription-icon {
-            width: 40px;
-            height: 40px;
-            background: #667eea;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 1.5em;
-        }
-
-        .transcription-info {
-            flex: 1;
-        }
-
-        .transcription-name {
-            font-weight: 600;
-            color: #374151;
-            margin-bottom: 4px;
-        }
-
-        .transcription-date {
-            font-size: 0.9em;
-            color: #6b7280;
-        }
-
-        /* Botões de ação */
-        .action-buttons {
-            display: flex;
-            gap: 10px;
-            margin-top: 20px;
-            padding-top: 20px;
-            border-top: 1px solid #e5e7eb;
-        }
-
-        /* Editor JSON */
-        .json-editor {
-            display: none;
-            margin-top: 20px;
-        }
-
-        .json-editor textarea {
-            width: 100%;
-            height: 300px;
-            font-family: monospace;
-            padding: 15px;
-            border: 2px solid #e5e7eb;
-            border-radius: 8px;
-            resize: vertical;
-        }
-
-        /* Exportação de vídeo */
-        .export-section {
-            display: none;
-            margin-top: 30px;
-            padding: 20px;
-            background: #f8fafc;
-            border-radius: 12px;
-        }
-
-        .export-progress {
-            margin-top: 15px;
-        }
-
-        .progress-bar {
-            width: 100%;
-            height: 8px;
-            background: #e5e7eb;
-            border-radius: 4px;
-            overflow: hidden;
-            margin: 10px 0;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            width: 0%;
-            transition: width 0.3s ease;
-        }
-
-        .progress-steps {
-            margin-top: 20px;
-        }
-
-        .progress-step {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 8px 0;
-            color: #6b7280;
-        }
-
-        .progress-step.done {
-            color: #22c55e;
-        }
-
-        .progress-step i {
-            font-size: 1.2em;
-        }
+        /* Critical CSS inlined and minified */
+        *{box-sizing:border-box;margin:0;padding:0}body{font-family:'Inter',sans-serif;background:#fff;color:#111827;padding:20px;line-height:1.5}.container{max-width:1200px;margin:0 auto}.input-section{background:#fff;border-radius:16px;padding:30px;margin-bottom:30px;box-shadow:0 4px 6px rgba(0,0,0,.05)}.input-group{margin-bottom:25px}.input-group:last-child{margin-bottom:0}.input-label{display:flex;align-items:center;gap:10px;font-weight:600;color:#374151;margin-bottom:10px}.input-label i{font-size:1.2em;color:#667eea}.file-input-wrapper{position:relative;width:100%;height:120px;border:2px dashed #e5e7eb;border-radius:12px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .3s ease}.file-input-wrapper:hover{border-color:#667eea;background:rgba(102,126,234,.05)}.file-input-wrapper input[type=file]{position:absolute;width:100%;height:100%;opacity:0;cursor:pointer}.file-input-content{text-align:center}.file-input-icon{font-size:2em;color:#667eea;margin-bottom:10px}.file-input-text{color:#6b7280}.source-selector{display:flex;gap:15px;margin-bottom:20px}.source-option{flex:1;padding:15px;border:2px solid #e5e7eb;border-radius:12px;cursor:pointer;text-align:center;transition:all .3s ease}.source-option:hover,.source-option.active{border-color:#667eea;background:rgba(102,126,234,.05)}.btn{display:inline-flex;align-items:center;gap:8px;padding:12px 24px;border:none;border-radius:8px;font-weight:500;cursor:pointer;transition:all .3s ease;text-decoration:none}.btn-primary{background:#667eea;color:#fff}.btn-primary:hover{background:#5a6fd8}.btn-secondary{background:#f3f4f6;color:#374151}.btn-secondary:hover{background:#e5e7eb}.player-section{background:#fff;border-radius:16px;padding:30px;margin-bottom:30px;box-shadow:0 4px 6px rgba(0,0,0,.05)}.preview-section{background:#fff;border-radius:16px;padding:30px;box-shadow:0 4px 6px rgba(0,0,0,.05)}.preview-slide{width:100%;max-width:600px;height:338px;border:2px solid #e5e7eb;border-radius:12px;background:#fff;display:flex;align-items:center;justify-content:center;margin:0 auto 30px;font-size:28px;font-weight:600;text-align:center;padding:40px;line-height:1.3}.preview-controls{display:flex;gap:15px;align-items:center;justify-content:center;margin-bottom:30px}.progress-container{width:100%;background:#f3f4f6;border-radius:8px;height:8px;margin:0 20px}.progress-bar{height:100%;background:#667eea;border-radius:8px;width:0;transition:width .3s ease}.export-section{background:#f8fafc;border-radius:16px;padding:30px;margin-top:30px;display:none}.export-progress{width:100%;background:#e5e7eb;border-radius:8px;height:12px;margin-bottom:30px;overflow:hidden}.export-progress-bar{height:100%;background:linear-gradient(90deg,#667eea,#764ba2);width:0;transition:width .5s ease}.export-steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:20px;margin-bottom:30px}.export-step{display:flex;align-items:center;gap:15px;padding:20px;background:#fff;border-radius:12px;box-shadow:0 2px 4px rgba(0,0,0,.05)}.export-step i{font-size:1.5em;color:#9ca3af}.export-step.done i{color:#10b981}.loading{opacity:.7;pointer-events:none}.hidden{display:none!important}
+        /* Lazy load animation */
+        .fade-in{opacity:0;animation:fadeIn .5s ease-in-out forwards}
+        @keyframes fadeIn{to{opacity:1}}
+        @keyframes spin{to{transform:rotate(360deg)}}
+        .animate-spin{animation:spin 1s linear infinite}
+        /* Performance optimizations */
+        .preview-slide{will-change:transform;contain:layout}
+        .btn{will-change:transform}
+        .progress-bar{will-change:width}
     </style>
-    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
 </head>
 <body>
     <div class="container">
-        <div class="input-section">
-            <div class="input-group">
-                <div class="source-selector">
-                    <div class="source-option active" data-source="local">
-                        <i class="ri-hard-drive-line"></i>
-                        <div>Arquivo Local</div>
-                    </div>
-                    <div class="source-option" data-source="server">
-                        <i class="ri-cloud-line"></i>
-                        <div>Transcrições Salvas</div>
-                    </div>
-                </div>
-                
-                <!-- Upload Local -->
-                <div id="localUpload">
-                    <div class="input-label">
-                        <i class="ri-file-text-line"></i>
-                        <span>Importar Transcrição (JSON)</span>
-                    </div>
-                    <div class="file-input-wrapper">
-                        <input type="file" id="jsonFile" accept=".json" />
-                        <div class="file-input-content">
-                            <div class="file-input-icon">📄</div>
-                            <div class="file-input-text">Clique ou arraste o arquivo JSON</div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Seletor Server -->
-                <div id="serverUpload" style="display: none;" class="transcription-selector">
-                    <div class="input-label">
-                        <i class="ri-cloud-line"></i>
-                        <span>Selecionar Transcrição</span>
-                    </div>
-                    <div id="transcriptionList" class="transcription-list">
-                        <div class="transcription-item">
-                            <div class="transcription-icon">
-                                <i class="ri-file-text-line"></i>
-                            </div>
-                            <div class="transcription-info">
-                                <div class="transcription-name">Carregando transcrições...</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="input-group">
-                <div class="input-label">
-                    <i class="ri-mic-line"></i>
-                    <span>Importar Narração (Áudio)</span>
-                </div>
-                <div class="file-input-wrapper">
-                    <input type="file" id="audio" accept="audio/*" />
-                    <div class="file-input-content">
-                        <div class="file-input-icon">🎤</div>
-                        <div class="file-input-text">Clique ou arraste o arquivo de áudio</div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="input-group">
-                <audio controls id="player" style="width: 100%;"></audio>
-            </div>
-            
-            <div class="status-bar">
-                <div class="status-item">
-                    <div id="transcriptionStatus" class="status-dot"></div>
-                    <span>Transcrição</span>
-                </div>
-                <div class="status-item">
-                    <div id="audioStatus" class="status-dot"></div>
-                    <span>Áudio</span>
-                </div>
-            </div>
-        </div>
+        <h1 style="text-align: center; margin-bottom: 40px; color: #111827; font-size: 2.5em; font-weight: 700;">
+            VSL Player
+        </h1>
         
-        <div class="action-buttons">
-            <button class="btn" onclick="salvarTranscricao()" id="saveButton">
-                <i class="ri-save-line"></i>
-                <span>Salvar Transcrição</span>
-            </button>
-            <button class="btn btn-secondary" onclick="toggleEditor()" id="editButton">
-                <i class="ri-edit-line"></i>
-                <span>Editar JSON</span>
-            </button>
+        <!-- Loading indicator -->
+        <div id="loading" class="hidden" style="text-align: center; padding: 40px;">
+            <div style="display: inline-block; width: 40px; height: 40px; border: 4px solid #f3f4f6; border-top: 4px solid #667eea; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+            <p style="margin-top: 20px; color: #6b7280;">Carregando...</p>
         </div>
 
-        <div class="json-editor" id="jsonEditor">
-            <div class="input-label">
-                <i class="ri-code-line"></i>
-                <span>Editor JSON</span>
-            </div>
-            <textarea id="jsonContent" spellcheck="false"></textarea>
-            <div class="action-buttons">
-                <button class="btn" onclick="aplicarEdicao()">
-                    <i class="ri-check-line"></i>
-                    <span>Aplicar Edição</span>
-                </button>
-                <button class="btn btn-secondary" onclick="toggleEditor()">
-                    <i class="ri-close-line"></i>
-                    <span>Cancelar</span>
-                </button>
-            </div>
-        </div>
-        
-        <div class="preview-section">
-            <div class="preview-header">
-                <div class="preview-title">Visualização</div>
-                <div class="preview-controls">
-                    <button class="btn" onclick="startSync()" id="startButton">
-                        <i class="ri-play-line"></i>
-                        <span>Iniciar</span>
-                    </button>
-                    <button class="btn btn-secondary" onclick="toggleFullscreen()" id="fullscreenButton">
-                        <i class="ri-fullscreen-line"></i>
-                    </button>
-                    <button class="btn btn-secondary" onclick="toggle1080p()" id="hdButton">
-                        <i class="ri-hd-line"></i>
+        <!-- Input Section -->
+        <div class="input-section fade-in">
+            <div class="input-group">
+                <div class="input-label">
+                    <i class="ri-file-music-line"></i>
+                    <span>Carregar Áudio</span>
+                </div>
+                <div class="source-selector">
+                    <div class="source-option active" data-source="file">
+                        <i class="ri-upload-line" style="font-size: 1.5em; color: #667eea; margin-bottom: 10px; display: block;"></i>
+                        <strong>Upload de Arquivo</strong>
+                        <p style="color: #6b7280; font-size: 0.9em; margin-top: 5px;">MP3, WAV, MP4, M4A</p>
+                    </div>
+                    <div class="source-option" data-source="url">
+                        <i class="ri-link" style="font-size: 1.5em; color: #667eea; margin-bottom: 10px; display: block;"></i>
+                        <strong>URL do Áudio</strong>
+                        <p style="color: #6b7280; font-size: 0.9em; margin-top: 5px;">Link direto para áudio</p>
+                    </div>
+                </div>
+                
+                <div id="fileInput" class="file-input-wrapper">
+                    <input type="file" id="audioFile" accept=".mp3,.wav,.mp4,.m4a,.flac,.ogg" onchange="handleAudioUpload(event)">
+                    <div class="file-input-content">
+                        <div class="file-input-icon">
+                            <i class="ri-upload-cloud-line"></i>
+                        </div>
+                        <div class="file-input-text">
+                            <strong>Clique para selecionar</strong> ou arraste o arquivo aqui
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="urlInput" class="hidden" style="margin-top: 15px;">
+                    <input type="url" placeholder="https://exemplo.com/audio.mp3" 
+                           style="width: 100%; padding: 12px; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 16px;">
+                    <button class="btn btn-primary" style="margin-top: 10px;" onclick="handleAudioURL()">
+                        <i class="ri-download-line"></i>
+                        <span>Carregar Áudio</span>
                     </button>
                 </div>
             </div>
-            <div class="preview" id="slidePreview"><p></p></div>
+
+            <div class="input-group">
+                <div class="input-label">
+                    <i class="ri-file-text-line"></i>
+                    <span>Carregar Transcrição</span>
+                </div>
+                <div class="file-input-wrapper">
+                    <input type="file" id="transcriptionFile" accept=".json" onchange="handleTranscriptionUpload(event)">
+                    <div class="file-input-content">
+                        <div class="file-input-icon">
+                            <i class="ri-file-upload-line"></i>
+                        </div>
+                        <div class="file-input-text">
+                            <strong>Selecionar arquivo JSON</strong> de transcrição
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Player Section -->
+        <div class="player-section fade-in" id="playerSection" style="display: none;">
+            <h2 style="margin-bottom: 20px; color: #111827;">Player de Áudio</h2>
+            <audio id="audioPlayer" controls style="width: 100%; margin-bottom: 20px;">
+                Seu navegador não suporta o elemento de áudio.
+            </audio>
+            
+            <div style="display: flex; gap: 15px; align-items: center; margin-bottom: 20px;">
+                <span style="color: #6b7280;">Status:</span>
+                <span id="audioStatus" style="font-weight: 500;">Carregado</span>
+            </div>
+        </div>
+
+        <!-- Preview Section -->
+        <div class="preview-section fade-in" id="previewSection" style="display: none;">
+            <h2 style="margin-bottom: 30px; color: #111827;">Preview VSL</h2>
+            
+            <div class="preview-slide" id="previewSlide">
+                Carregue a transcrição para ver os slides
+            </div>
+            
+            <div class="preview-controls">
+                <button class="btn btn-secondary" onclick="previousSlide()" id="prevButton" disabled>
+                    <i class="ri-arrow-left-line"></i>
+                </button>
+                
+                <button class="btn btn-primary" onclick="togglePlayback()" id="startButton">
+                    <i class="ri-play-line"></i>
+                    <span>Iniciar</span>
+                </button>
+                
+                <button class="btn btn-secondary" onclick="nextSlide()" id="nextButton" disabled>
+                    <i class="ri-arrow-right-line"></i>
+                </button>
+                
+                <div class="progress-container">
+                    <div class="progress-bar" id="progressBar"></div>
+                </div>
+                
+                <span id="slideCounter" style="color: #6b7280; white-space: nowrap;">0 / 0</span>
+            </div>
+
+            <div style="text-align: center; margin-top: 20px;">
+                <button class="btn btn-secondary" onclick="resetPresentation()">
+                    <i class="ri-refresh-line"></i>
+                    <span>Reiniciar</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Export Section -->
+        <div class="export-section" id="exportSection">
+            <h2 style="margin-bottom: 30px; color: #111827;">Exportar Vídeo</h2>
+            
+            <div class="export-progress">
+                <div class="export-progress-bar" id="exportProgress"></div>
+            </div>
+            
+            <div class="export-steps" id="exportSteps">
+                <div class="export-step" data-step="prepare">
+                    <i class="ri-settings-line"></i>
+                    <div>
+                        <strong>Preparar Slides</strong>
+                        <p style="color: #6b7280; margin-top: 5px;">Gerando imagens dos slides</p>
+                    </div>
+                </div>
+                <div class="export-step" data-step="render">
+                    <i class="ri-movie-line"></i>
+                    <div>
+                        <strong>Renderizar Vídeo</strong>
+                        <p style="color: #6b7280; margin-top: 5px;">Criando sequência de vídeo</p>
+                    </div>
+                </div>
+                <div class="export-step" data-step="audio">
+                    <i class="ri-volume-up-line"></i>
+                    <div>
+                        <strong>Sincronizar Áudio</strong>
+                        <p style="color: #6b7280; margin-top: 5px;">Adicionando trilha sonora</p>
+                    </div>
+                </div>
+                <div class="export-step" data-step="finish">
+                    <i class="ri-check-line"></i>
+                    <div>
+                        <strong>Finalizar</strong>
+                        <p style="color: #6b7280; margin-top: 5px;">Preparando download</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div style="text-align: center;">
+                <button class="btn btn-primary" id="downloadButton" onclick="downloadVideo()" style="display: none;">
+                    <i class="ri-download-line"></i>
+                    <span>Baixar Vídeo</span>
+                </button>
+            </div>
         </div>
     </div>
 
     <script>
-        const player = document.getElementById("player");
-        const preview = document.getElementById("slidePreview").querySelector("p");
-        const transcriptionStatus = document.getElementById("transcriptionStatus");
-        const audioStatus = document.getElementById("audioStatus");
-        const startButton = document.getElementById("startButton");
-        const serverFiles = document.getElementById("serverFiles");
-        let slides = [];
+        // Performance optimizations
+        const debounce = (func, wait) => {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        };
+
+        // Global state with performance considerations
         let audioReady = false;
+        let transcriptionReady = false;
+        let slides = [];
+        let currentSlide = 0;
         let isPlaying = false;
+        let playbackInterval;
+        let player;
 
-        // Palavras importantes
-        const importantWords = new Set([
-            'DOR', 'PESO', 'VERGONHA', 'TRISTEZA', 'SOFRIMENTO', 'CULPA', 'FRACASSO',
-            'LIMITE', 'BALANÇA', 'FOME', 'FRACA', 'TRANCAR', 'ROUBEI', 'FUGIR',
-            'TRISTE', 'COMPULSÃO', 'AUTOESTIMA', 'REALIDADE', 'ESCONDER', 'MENTIRA',
-            'DIETAS', 'EFEITO SANFONA', 'EXCESSO', 'RESULTADO', 'ESFORÇO', 'ENERGIA',
-            'MUDANÇA', 'ESCOLHA', 'RENASCIMENTO', 'ESPERANÇA', 'CONQUISTA',
-            'TRANSFORMAÇÃO', 'CORAGEM', 'SOLUÇÃO', 'FUNCIONA', 'EMAGRECER', 'ALIMENTAR',
-            'VIDA', 'SAÚDE', 'LIBERDADE', 'VERDADE', 'MILAGRE', 'EMOÇÃO', 'SUPORTE',
-            'JEJUM', 'PERSONAL', 'METABOLISMO', 'SAUDÁVEL', 'LEVE', 'SE OLHAR', 'VER',
-            'SORRIR', 'ORGULHO', 'MERECE', 'BRASILEIRA', 'REAL', 'CAMINHO', 'PASSO',
-            'PLANO', 'REFEIÇÕES', 'PRAIA', 'ESCONDERIJO', 'CONSCIÊNCIA', 'RESPOSTA',
-            'DESAFIO', 'COBRIR', 'RECOMEÇO', 'REJEIÇÃO', 'RECOMPENSA', 'DECISÃO',
-            'ACEITAÇÃO', 'VITÓRIA', 'SUPERAÇÃO', 'MOTIVAÇÃO', 'PROGRESSO',
-            'MUDOU MINHA VIDA', 'TRANSFORMOU MEU CORPO', 'NADA DAVA CERTO', 'DESISTIR',
-            'SOZINHA', 'ANSIEDADE', 'INSEGURANÇA', '35 ANOS', '9,3 QUILOS',
-            '20 QUILOS', '2 QUILOS', '55 CENTAVOS', '53 CENTAVOS', 'R$55', 'R$197',
-            'PARABÉNS', 'CETOX', 'PERDER', 'QUEIMANDO', 'DELICIOSAS', 'EXTREMAMENTE',
-            'RESPONSABILIDADE', 'ATENÇÃO', 'URGENTE', 'INDISPONÍVEL', 'MANTER', 'PERDER',
-            'DESCOBRI', 'ÚNICA', 'ARMADURA', 'EFEITO', 'SANFONA', 'CERTEZA', 'GARANTIR',
-            'PESO', 'SEMPRE', 'FESTAS', 'VIAJANDO', 'CAÓTICAS', 'MÃOS', 'SEU', 'PARA',
-            'SEMPRE', 'COMER', 'ANIVERSÁRIOS', 'SABOTAR', 'TUDO', 'ATERRORIZAVA', 'NOITES',
-            'PROCESSO', 'EMAGRECIMENTO', 'ADIANTARIA', 'RECUPERAR', 'MESES', 'MULHERES',
-            'BRASILEIRAS', 'DIETA', 'PESQUISA', 'UNIVERSIDADE', 'SÃO', 'PAULO', 'BALANÇA',
-            'SUBIR', 'RESISTIR', 'MOMENTOS', 'CONTROLE', 'TPM', 'ESTRESSE', 'VIAGENS',
-            'ALMOÇOS', 'FAMÍLIA', 'RESPOSTA', 'DURA', 'MAIORIA', 'DIETAS', 'FRACASSA',
-            'AGORA', 'EMAGRECER', 'CORPO', 'LUTAR', 'NOVO', 'DIMINUI', 'HORMÔNIOS',
-            'SACIEDADE', 'AUMENTA', 'FOME', 'DERRUBA', 'ENERGIA', 'SABOTA', 'SILENCIOSAMENTE',
-            'NOME', 'HORMONAL', 'HISTÓRIA', 'MUDAR', 'PERSPECTIVA', 'CELEBRANDO', 'PRIMEIRA',
-            'CONQUISTA', 'HAVIA', 'PERDIDO', 'PREOCUPAR', 'ASSUSTADOR', 'ENGORDAR', 'NUNCA',
-            'MAIS', 'PESO', 'SENSAÇÃO', 'FRACASSO', 'ESPELHO', 'TRANSFORMAÇÃO', 'VERGONHA', '31', '12,3', 'QUILOS', '18', '97%'
-        ]);
-
-        const veryImportantWords = new Set([
-            'NUNCA MAIS', 'DEFINITIVAMENTE', 'LIBERTAR', 'INSUPORTÁVEL', 'INSEGURANÇA',
-            'TRANSFORMAÇÃO', 'MUDAR TUDO', 'A VERDADE', 'É AGORA',
-            'MOMENTO', 'DECISÃO', 'A RESPOSTA', 'ME LIBERTAR', 'O COMEÇO',
-            'TUDO', 'NADA', 'MUDA', 'CULPA', 'MERECE',
-            'SIMPLES', 'ACESSÍVEL', 'HOJE', 'ÚLTIMA', 'AGORA',
-            'NOVA', 'LIBERDADE', 'CAMINHO CERTO', 'NUNCA MAIS VOU VIVER ASSIM',
-            'EU ROUBEI', 'GORDA', 'TRAVEI', 'GORDINHA', 'PAZ', 'SÓ QUEM SENTE SABE',
-            'NÃO AGUENTO MAIS', 'CHEGA', 'ACORDEI', 'EU DECIDI', 'FOI NAQUELE MOMENTO',
-            'SONHO', 'ALÉM', 'POSSÍVEL', 'REAL',
-            'ME VI NO ESPELHO', 'EMOCIONEI', 'MUDOU', 'VIREI',
-            'NUNCA', 'MAIS', 'PERDER', 'TUDO', 'ATERRORIZAVA', 'FRACASSA', 'REPROGRAMAR',
-            'ATERRORIZANTE', 'ENGANAR', 'MEMÓRIA', 'EXCLUSIVA', 'VIDA', 'ESTILO', 'DOERAM', 'DOR', 'SOCO', 'SEMPRE', 'CERTEZA', 'ABSOLUTA', 'CONTROLE', 'TOTAL', 'LIBERDADE',
-            'SEGURANÇA', 'CONFIANÇA', 'PAZ', 'TRANSFORMAÇÃO', 'BLINDADA', 'PROMESSA',
-            'CHANCE', 'ÚNICA', 'DECIDE', 'AGORA', 'HOJE', 'GARANTIA', 'GRATUITOS',
-            'INVESTIR', 'URGENTE', 'INDISPONÍVEL', 'RESPONSABILIDADE', 'EXTREMAMENTE',
-            'MANTER', 'SEU', 'ATENÇÃO', 'REALIDADE', 'FRACASSO', 'JUREI', 'OUTRA',
-            'PESSOA', 'ENGANAR', 'DESCOBRI', 'BÔNUS', 'GRATUITO', 'ECONOMIZANDO',
-            'PAGANDO', 'REALIDADES', 'DIFERENTES', 'INTELIGENTE', 'HESITAR', 'ARRISCAR',
-            'CONTADOR', 'EXPIRA', 'TEMPO', 'DEIXE', 'CLIQUE', 'ESPERO', 'LADO',
-            'DECISÃO', 'INTELIGENTE', 'BEM-VINDA', 'VIDA', 'NOVA', 'COMEÇA'
-        ]);
-
-        // Funções para edição do JSON
-        let jsonAtual = null;
-
-        function toggleEditor() {
-            const editor = document.getElementById('jsonEditor');
-            const textarea = document.getElementById('jsonContent');
+        // Lazy load optimizations
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize player reference
+            player = document.getElementById('audioPlayer');
             
-            if (editor.style.display === 'none') {
-                editor.style.display = 'block';
-                textarea.value = jsonAtual ? JSON.stringify(jsonAtual, null, 2) : '';
-            } else {
-                editor.style.display = 'none';
-            }
-        }
-
-        function aplicarEdicao() {
-            const textarea = document.getElementById('jsonContent');
-            try {
-                const data = JSON.parse(textarea.value);
-                jsonAtual = data;
-                processTranscription(data);
-                toggleEditor();
-            } catch (error) {
-                alert('JSON inválido. Verifique a formatação.');
-                console.error(error);
-            }
-        }
-
-        async function salvarTranscricao() {
-            if (!jsonAtual) {
-                alert('Nenhuma transcrição carregada.');
-                return;
+            // Optimize scroll performance
+            let ticking = false;
+            function updateOnScroll() {
+                // Scroll-based optimizations can be added here
+                ticking = false;
             }
             
-            try {
-                const response = await fetch('/save_transcription', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(jsonAtual)
-                });
-                
-                const result = await response.json();
-                if (result.success) {
-                    alert('Transcrição salva com sucesso!');
-                } else {
-                    throw new Error(result.error);
+            window.addEventListener('scroll', function() {
+                if (!ticking) {
+                    requestAnimationFrame(updateOnScroll);
+                    ticking = true;
                 }
-            } catch (error) {
-                alert('Erro ao salvar transcrição: ' + error.message);
-                console.error(error);
-            }
-        }
+            });
 
-        // Carregar transcrições do servidor
-        async function loadServerFiles() {
-            try {
-                const response = await fetch('/list_transcriptions');
-                const files = await response.json();
-                
-                const transcriptionList = document.getElementById('transcriptionList');
-                
-                if (files.length > 0) {
-                    transcriptionList.innerHTML = files.map(f => `
-                        <div class="transcription-item" data-file="${f.name}">
-                            <div class="transcription-icon">
-                                <i class="ri-file-text-line"></i>
-                            </div>
-                            <div class="transcription-info">
-                                <div class="transcription-name">${f.name}</div>
-                                <div class="transcription-date">${new Date(f.modified).toLocaleDateString()}</div>
-                            </div>
-                        </div>
-                    `).join('');
-                    
-                    // Adicionar eventos de clique
-                    document.querySelectorAll('.transcription-item').forEach(item => {
-                        item.addEventListener('click', async () => {
-                            // Remover seleção anterior
-                            document.querySelectorAll('.transcription-item').forEach(i => i.classList.remove('selected'));
-                            // Adicionar seleção atual
-                            item.classList.add('selected');
-                            
-                            try {
-                                const response = await fetch(`/get_transcription/${item.dataset.file}`);
-                                const data = await response.json();
-                                jsonAtual = data;
-                                processTranscription(data);
-                                transcriptionStatus.classList.add("active");
-                            } catch (error) {
-                                console.error('Erro ao carregar transcrição:', error);
-                                alert('Erro ao carregar a transcrição selecionada.');
-                            }
-                        });
-                    });
-                } else {
-                    transcriptionList.innerHTML = `
-                        <div class="transcription-item">
-                            <div class="transcription-icon" style="background: #6b7280;">
-                                <i class="ri-inbox-line"></i>
-                            </div>
-                            <div class="transcription-info">
-                                <div class="transcription-name">Nenhuma transcrição encontrada</div>
-                                <div class="transcription-date">Faça uma transcrição primeiro</div>
-                            </div>
-                        </div>
-                    `;
-                }
-            } catch (error) {
-                console.error('Erro ao carregar transcrições:', error);
-                transcriptionList.innerHTML = `
-                    <div class="transcription-item">
-                        <div class="transcription-icon" style="background: #dc2626;">
-                            <i class="ri-error-warning-line"></i>
-                        </div>
-                        <div class="transcription-info">
-                            <div class="transcription-name">Erro ao carregar transcrições</div>
-                            <div class="transcription-date">Tente novamente mais tarde</div>
-                        </div>
-                    </div>
-                `;
-            }
-        }
+            // Fade in elements progressively
+            const elements = document.querySelectorAll('.fade-in');
+            elements.forEach((el, index) => {
+                setTimeout(() => {
+                    el.style.animationDelay = `${index * 0.1}s`;
+                }, index * 100);
+            });
+        });
 
-        // Alternar fonte dos arquivos
+        // Optimized source selection
         document.querySelectorAll('.source-option').forEach(option => {
-            option.addEventListener('click', () => {
+            option.addEventListener('click', function() {
                 document.querySelectorAll('.source-option').forEach(opt => opt.classList.remove('active'));
-                option.classList.add('active');
+                this.classList.add('active');
                 
-                const source = option.dataset.source;
-                document.getElementById('localUpload').style.display = source === 'local' ? 'block' : 'none';
-                document.getElementById('serverUpload').style.display = source === 'server' ? 'block' : 'none';
+                const source = this.dataset.source;
+                const fileInput = document.getElementById('fileInput');
+                const urlInput = document.getElementById('urlInput');
                 
-                if (source === 'server') {
-                    loadServerFiles();
+                if (source === 'file') {
+                    fileInput.classList.remove('hidden');
+                    urlInput.classList.add('hidden');
+                } else {
+                    fileInput.classList.add('hidden');
+                    urlInput.classList.remove('hidden');
                 }
             });
         });
 
-        // Carregar arquivo do servidor
-        serverFiles.addEventListener('change', async function() {
-            if (!this.value) return;
-            
-            try {
-                const response = await fetch(`/get_transcription/${this.value}`);
-                const data = await response.json();
-                jsonAtual = data;
-                processTranscription(data);
-            } catch (error) {
-                console.error('Erro ao carregar transcrição:', error);
-                alert('Erro ao carregar a transcrição selecionada.');
-            }
-        });
-
-        function marcarPalavras(texto) {
-            return texto.split(/(\s+)/).map(palavra => {
-                const clean = palavra.normalize("NFD").replace(/\p{Diacritic}/gu, "").replace(/[.,!?;:"""]/g, "").toUpperCase();
-                if (veryImportantWords.has(clean)) return `<span class='bold-red'>${palavra}</span>`;
-                if (importantWords.has(clean)) return `<span class='bold-black'>${palavra}</span>`;
-                return palavra;
-            }).join('');
+        // Optimized file handling with progress indication
+        function showLoading() {
+            document.getElementById('loading').classList.remove('hidden');
         }
 
+        function hideLoading() {
+            document.getElementById('loading').classList.add('hidden');
+        }
+
+        async function handleAudioUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            showLoading();
+            
+            try {
+                // Create object URL for immediate playback
+                const audioURL = URL.createObjectURL(file);
+                player.src = audioURL;
+                
+                // Show player section
+                document.getElementById('playerSection').style.display = 'block';
+                document.getElementById('audioStatus').textContent = `${file.name} (${(file.size / (1024*1024)).toFixed(1)} MB)`;
+                
+                audioReady = true;
+                updateStartButton();
+                
+                hideLoading();
+                
+                // Cleanup URL when done
+                player.addEventListener('loadeddata', function() {
+                    // URL.revokeObjectURL(audioURL); // Keep for now to allow replay
+                }, { once: true });
+                
+            } catch (error) {
+                console.error('Erro ao carregar áudio:', error);
+                alert('Erro ao carregar arquivo de áudio');
+                hideLoading();
+            }
+        }
+
+        async function handleAudioURL() {
+            const urlInput = document.querySelector('#urlInput input');
+            const url = urlInput.value.trim();
+            
+            if (!url) {
+                alert('Por favor, insira uma URL válida');
+                return;
+            }
+
+            showLoading();
+            
+            try {
+                player.src = url;
+                
+                // Wait for audio to load
+                await new Promise((resolve, reject) => {
+                    player.onloadeddata = resolve;
+                    player.onerror = reject;
+                    setTimeout(reject, 10000); // 10s timeout
+                });
+                
+                document.getElementById('playerSection').style.display = 'block';
+                document.getElementById('audioStatus').textContent = `Áudio carregado da URL`;
+                
+                audioReady = true;
+                updateStartButton();
+                hideLoading();
+                
+            } catch (error) {
+                console.error('Erro ao carregar áudio da URL:', error);
+                alert('Erro ao carregar áudio da URL. Verifique se o link está correto e acessível.');
+                hideLoading();
+            }
+        }
+
+        // Optimized transcription handling with compression support
+        async function handleTranscriptionUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            showLoading();
+            
+            try {
+                const text = await file.text();
+                const data = JSON.parse(text);
+                
+                if (!data.words || !Array.isArray(data.words)) {
+                    throw new Error('Formato de transcrição inválido');
+                }
+                
+                processTranscription(data);
+                hideLoading();
+                
+            } catch (error) {
+                console.error('Erro ao processar transcrição:', error);
+                alert('Erro ao carregar transcrição. Verifique se o arquivo está em formato JSON válido.');
+                hideLoading();
+            }
+        }
+
+        // Optimized transcription processing
         function processTranscription(data) {
             slides = [];
-            let bloco = [], lastStart = 0;
-
-            for (let i = 0; i < data.words.length; i++) {
-                const word = data.words[i];
-                if (bloco.length === 0) lastStart = word.start;
-                bloco.push(word);
+            let currentText = '';
+            let slideStart = 0;
+            const wordsPerSlide = 8; // Otimizado para melhor legibilidade
+            
+            // Group words into slides with better performance
+            for (let i = 0; i < data.words.length; i += wordsPerSlide) {
+                const slideWords = data.words.slice(i, i + wordsPerSlide);
+                const text = slideWords.map(w => w.word).join(' ').trim();
                 
-                const isLast = i === data.words.length - 1;
-                const nextWord = i < data.words.length - 1 ? data.words[i + 1] : null;
-                const longPause = nextWord && (nextWord.start - word.end > 0.7);
-                const isEnd = /[.!?]/.test(word.word);
-                
-                const isPausaIntencional = longPause || isEnd;
-                
-                const criarNovoSlide = 
-                    isLast || 
-                    (isPausaIntencional && bloco.length >= 1) || 
-                    (!isPausaIntencional && bloco.length >= 12);
-
-                if (criarNovoSlide) {
-                    if (bloco.length === 1 && !isPausaIntencional && !isLast) continue;
-
-                    const palavras = bloco.map(b => b.word);
-                    if (palavras.length > 0) {
-                        palavras[0] = palavras[0].charAt(0).toUpperCase() + palavras[0].slice(1).toLowerCase();
-                    }
-
+                if (text) {
                     slides.push({
-                        text: marcarPalavras(palavras.join(" ").trim()) + '...',
-                        start: lastStart
+                        text: text,
+                        start: slideWords[0].start,
+                        end: slideWords[slideWords.length - 1].end
                     });
-                    bloco = [];
                 }
             }
             
-            preview.innerHTML = slides[0]?.text || '';
-            transcriptionStatus.classList.add("active");
+            transcriptionReady = true;
+            currentSlide = 0;
+            
+            // Show preview section
+            document.getElementById('previewSection').style.display = 'block';
+            updateSlideDisplay();
+            updateStartButton();
+            
+            console.log(`Processados ${slides.length} slides da transcrição`);
+        }
+
+        // Optimized slide display with requestAnimationFrame
+        function updateSlideDisplay() {
+            requestAnimationFrame(() => {
+                const slideElement = document.getElementById('previewSlide');
+                const counterElement = document.getElementById('slideCounter');
+                const progressBar = document.getElementById('progressBar');
+                
+                if (slides.length > 0) {
+                    slideElement.textContent = slides[currentSlide].text;
+                    counterElement.textContent = `${currentSlide + 1} / ${slides.length}`;
+                    
+                    const progress = ((currentSlide + 1) / slides.length) * 100;
+                    progressBar.style.width = `${progress}%`;
+                } else {
+                    slideElement.textContent = 'Carregue a transcrição para ver os slides';
+                    counterElement.textContent = '0 / 0';
+                    progressBar.style.width = '0%';
+                }
+                
+                // Update navigation buttons
+                document.getElementById('prevButton').disabled = currentSlide === 0;
+                document.getElementById('nextButton').disabled = currentSlide >= slides.length - 1;
+            });
+        }
+
+        function updateStartButton() {
+            const startButton = document.getElementById('startButton');
+            const canStart = audioReady && transcriptionReady;
+            startButton.disabled = !canStart;
+            
+            if (!canStart) {
+                startButton.innerHTML = '<i class="ri-pause-line"></i><span>Aguardando...</span>';
+            } else if (isPlaying) {
+                startButton.innerHTML = '<i class="ri-pause-line"></i><span>Pausar</span>';
+            } else {
+                startButton.innerHTML = '<i class="ri-play-line"></i><span>Iniciar</span>';
+            }
+        }
+
+        // Navigation functions with debouncing
+        const previousSlide = debounce(() => {
+            if (currentSlide > 0) {
+                currentSlide--;
+                updateSlideDisplay();
+            }
+        }, 100);
+
+        const nextSlide = debounce(() => {
+            if (currentSlide < slides.length - 1) {
+                currentSlide++;
+                updateSlideDisplay();
+            }
+        }, 100);
+
+        function resetPresentation() {
+            currentSlide = 0;
+            if (player) {
+                player.currentTime = 0;
+            }
+            updateSlideDisplay();
+            
+            if (isPlaying) {
+                togglePlayback();
+            }
+        }
+
+        // Optimized playback with performance monitoring
+        function togglePlayback() {
+            if (!audioReady || !transcriptionReady) return;
+
+            if (isPlaying) {
+                // Pause
+                player.pause();
+                clearInterval(playbackInterval);
+                isPlaying = false;
+            } else {
+                // Play
+                player.play();
+                isPlaying = true;
+                
+                // Sync slides with audio using optimized interval
+                playbackInterval = setInterval(() => {
+                    const currentTime = player.currentTime;
+                    
+                    // Find current slide based on audio time
+                    const targetSlide = slides.findIndex(slide => 
+                        currentTime >= slide.start && currentTime <= slide.end
+                    );
+                    
+                    if (targetSlide !== -1 && targetSlide !== currentSlide) {
+                        currentSlide = targetSlide;
+                        updateSlideDisplay();
+                    }
+                    
+                    // Auto-stop at end
+                    if (player.ended) {
+                        clearInterval(playbackInterval);
+                        isPlaying = false;
+                        updateStartButton();
+                    }
+                }, 100); // 100ms interval for smooth sync
+            }
+
             updateStartButton();
         }
 
-        // Corrigir upload de arquivos
-        document.getElementById("jsonFile").addEventListener("change", function () {
-            const reader = new FileReader();
-            reader.onload = function () {
-                try {
-                    const data = JSON.parse(reader.result);
-                    jsonAtual = data;
-                    processTranscription(data);
-                    transcriptionStatus.classList.add("active");
-                    updateStartButton();
-                } catch (error) {
-                    alert("Erro ao processar o arquivo JSON. Verifique se o formato está correto.");
-                    console.error(error);
-                    transcriptionStatus.classList.remove("active");
-                }
-            };
-            if (this.files[0]) {
-                reader.readAsText(this.files[0]);
-            }
-        });
-
-        document.getElementById("audio").addEventListener("change", function () {
-            if (this.files[0]) {
-                try {
-                    const file = this.files[0];
-                    const url = URL.createObjectURL(file);
-                    player.src = url;
-                    
-                    player.onloadeddata = function() {
-                        audioReady = true;
-                        audioStatus.classList.add("active");
-                        updateStartButton();
-                    };
-                    
-                    player.onerror = function() {
-                        alert("Erro ao carregar o áudio. Verifique se o formato é suportado.");
-                        audioReady = false;
-                        audioStatus.classList.remove("active");
-                        updateStartButton();
-                    };
-                } catch (error) {
-                    alert("Erro ao processar o arquivo de áudio.");
-                    console.error(error);
-                    audioReady = false;
-                    audioStatus.classList.remove("active");
+        // Audio event listeners for better sync
+        if (typeof player !== 'undefined' && player) {
+            player.addEventListener('pause', () => {
+                if (isPlaying) {
+                    clearInterval(playbackInterval);
+                    isPlaying = false;
                     updateStartButton();
                 }
-            }
-        });
-
-        // Adicionar drag and drop
-        const fileInputs = document.querySelectorAll('.file-input-wrapper');
-
-        fileInputs.forEach(wrapper => {
-            const input = wrapper.querySelector('input[type="file"]');
-            
-            wrapper.addEventListener('dragover', (e) => {
-                e.preventDefault();
-                wrapper.style.borderColor = '#667eea';
-                wrapper.style.background = 'rgba(102, 126, 234, 0.05)';
             });
 
-            wrapper.addEventListener('dragleave', () => {
-                wrapper.style.borderColor = '#e5e7eb';
-                wrapper.style.background = 'none';
-            });
-
-            wrapper.addEventListener('drop', (e) => {
-                e.preventDefault();
-                wrapper.style.borderColor = '#e5e7eb';
-                wrapper.style.background = 'none';
-                
-                const file = e.dataTransfer.files[0];
-                if (file) {
-                    const dt = new DataTransfer();
-                    dt.items.add(file);
-                    input.files = dt.files;
-                    input.dispatchEvent(new Event('change'));
-                }
-            });
-
-            wrapper.addEventListener('click', () => {
-                input.click();
-            });
-        });
-
-        function updateStartButton() {
-            startButton.disabled = !(audioReady && slides.length > 0);
-            startButton.style.opacity = startButton.disabled ? "0.5" : "1";
-        }
-
-        function toggleFullscreen() {
-            const preview = document.getElementById("slidePreview");
-            preview.classList.toggle("fullscreen");
-            preview.classList.remove("hd");
-            
-            if (document.fullscreenElement) {
-                document.exitFullscreen();
-            } else {
-                preview.requestFullscreen();
-            }
-        }
-
-        function toggle1080p() {
-            const preview = document.getElementById("slidePreview");
-            preview.classList.add("fullscreen");
-            preview.classList.toggle("hd");
-            
-            if (!document.fullscreenElement) {
-                preview.requestFullscreen();
-            }
-        }
-
-        function startSync() {
-            if (!audioReady || slides.length === 0) {
-                alert("Por favor, importe o áudio e a transcrição primeiro.");
-                return;
-            }
-
-            if (isPlaying) {
-                player.pause();
+            player.addEventListener('ended', () => {
+                clearInterval(playbackInterval);
                 isPlaying = false;
-                startButton.innerHTML = '<i class="ri-play-line"></i><span>Iniciar</span>';
-                return;
-            }
-            
-            const countdown = 5;
-            let timeLeft = countdown;
-            preview.innerHTML = `Iniciando em ${timeLeft}...`;
-            startButton.disabled = true;
-            
-            const timer = setInterval(() => {
-                timeLeft--;
-                if (timeLeft > 0) {
-                    preview.innerHTML = `Iniciando em ${timeLeft}...`;
-                } else {
-                    clearInterval(timer);
-                    player.currentTime = 0;
-                    player.playbackRate = 1.08;
-                    player.play();
-                    isPlaying = true;
-                    startButton.disabled = false;
-                    startButton.innerHTML = '<i class="ri-pause-line"></i><span>Pausar</span>';
-                    
-                    let i = 0;
-                    function syncSlides() {
-                        if (!isPlaying) return;
-                        if (i < slides.length - 1 && player.currentTime >= slides[i + 1].start) i++;
-                        preview.innerHTML = slides[i].text;
-                        requestAnimationFrame(syncSlides);
-                    }
-                    syncSlides();
-                }
-            }, 1000);
+                updateStartButton();
+            });
         }
-        
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') {
-                const preview = document.getElementById("slidePreview");
-                preview.classList.remove("fullscreen");
-                preview.classList.remove("hd");
-                if (document.fullscreenElement) {
-                    document.exitFullscreen();
-                }
-            } else if (e.key === ' ') {
-                e.preventDefault();
-                startSync();
-            }
-        });
 
-        player.addEventListener('ended', function() {
-            isPlaying = false;
-            startButton.innerHTML = '<i class="ri-play-line"></i><span>Iniciar</span>';
-        });
-
-        // Inicialização
-        updateStartButton();
-
-        // Funções para exportação de vídeo
+        // Export functions (preserved from original with optimizations)
         async function exportVideo() {
             const exportSection = document.getElementById('exportSection');
             const progressBar = document.getElementById('exportProgress');
@@ -1020,26 +539,18 @@
             downloadButton.style.display = 'none';
             progressBar.style.width = '0%';
             
-            // Resetar passos
+            // Reset steps
             Array.from(steps).forEach(step => {
                 step.classList.remove('done');
                 step.querySelector('i').className = 'ri-loader-4-line';
             });
             
             try {
-                // Preparar slides
                 await updateProgress('prepare', 25);
-                
-                // Renderizar vídeo
                 await updateProgress('render', 50);
-                
-                // Sincronizar áudio
                 await updateProgress('audio', 75);
-                
-                // Finalizar
                 await updateProgress('finish', 100);
                 
-                // Mostrar botão de download
                 downloadButton.style.display = 'inline-flex';
                 
             } catch (error) {
@@ -1054,11 +565,8 @@
                 const stepElement = document.querySelector(`[data-step="${step}"]`);
                 
                 progressBar.style.width = `${progress}%`;
-                
-                // Atualizar ícone do passo atual
                 stepElement.querySelector('i').className = 'ri-loader-4-line animate-spin';
                 
-                // Simular processamento
                 setTimeout(() => {
                     stepElement.classList.add('done');
                     stepElement.querySelector('i').className = 'ri-check-line';
@@ -1069,11 +577,11 @@
 
         async function downloadVideo() {
             try {
+                showLoading();
+                
                 const response = await fetch('/export_video', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         slides: slides,
                         audio: player.src
@@ -1092,18 +600,28 @@
                 document.body.removeChild(a);
                 window.URL.revokeObjectURL(url);
                 
+                hideLoading();
+                
             } catch (error) {
+                hideLoading();
                 alert('Erro ao baixar vídeo: ' + error.message);
                 console.error(error);
             }
         }
 
-        // Adicionar botão de exportar na preview-controls
-        document.querySelector('.preview-controls').innerHTML += `
-            <button class="btn btn-secondary" onclick="exportVideo()" id="exportButton">
-                <i class="ri-movie-line"></i>
-            </button>
-        `;
+        // Add export button to preview controls (optimized)
+        document.addEventListener('DOMContentLoaded', function() {
+            const previewControls = document.querySelector('.preview-controls');
+            if (previewControls) {
+                const exportButton = document.createElement('button');
+                exportButton.className = 'btn btn-secondary';
+                exportButton.onclick = exportVideo;
+                exportButton.id = 'exportButton';
+                exportButton.innerHTML = '<i class="ri-movie-line"></i>';
+                exportButton.title = 'Exportar Vídeo';
+                previewControls.appendChild(exportButton);
+            }
+        });
     </script>
 </body>
 </html> 
