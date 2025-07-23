@@ -28,12 +28,11 @@ Thumbs.db
 *.log
 logs/
 
-# Documentation (keep README.md)
-*.md
-!README.md
-!PERFORMANCE_OPTIMIZATIONS.md
+# Large sample files (keep for development, exclude from container)
+InShot_20250721_134054366_transcricao.json
+webapp_vsl_ultra copy.html
 
-# Large files that shouldn't be in container
+# Media files
 *.mp4
 *.mp3
 *.wav
@@ -48,6 +47,6 @@ uploads/
 outputs/
 models/
 
-# Performance monitoring (not needed in container)
-performance.log
+# Development tools
 performance_monitor.py
+gunicorn.conf.py

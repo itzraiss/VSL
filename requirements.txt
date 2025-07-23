@@ -1,32 +1,22 @@
-# Core dependencies with optimized versions for Hugging Face Spaces
-torch==2.0.1
-torchaudio==2.0.2
-whisperx==3.1.1
-transformers==4.30.2
+# Essencial para IA
+torch
+torchaudio
+transformers
+whisperx
 
 # Web framework
-flask==2.3.3
-werkzeug==2.3.7
+flask
+werkzeug
 
-# Data processing (optimized versions)
-numpy==1.24.4
-librosa==0.10.1
-soundfile==0.12.1
+# Audio/Video
+librosa
+soundfile
+numpy
+ffmpeg-python
 
-# Video processing
-ffmpeg-python==0.2.0
-moviepy==1.0.3
+# Image
+Pillow
 
-# Image processing
-Pillow==10.0.1
-
-# Utilities
-decorator==5.1.1
-imageio==2.31.6
-imageio-ffmpeg==0.4.9
-tqdm==4.66.1
-requests==2.31.0
-
-# Performance improvements
-psutil==5.9.6
-gunicorn==21.2.0
+# Utils
+tqdm
+requests

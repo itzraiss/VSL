@@ -5,7 +5,7 @@ import json
 from werkzeug.utils import secure_filename
 import threading
 import time
-import moviepy.editor as mp
+# import moviepy.editor as mp  # Temporariamente desabilitado
 from PIL import Image, ImageDraw, ImageFont
 import io
 import base64
@@ -249,117 +249,13 @@ def create_slide_image(text, width=1920, height=1080):
 
 @app.route('/export_video', methods=['POST'])
 def export_video():
-    """Exporta os slides como vídeo com sincronização precisa e otimizações"""
+    """Exporta os slides como vídeo - temporariamente desabilitado"""
     try:
-        data = request.json
-        slides = data.get('slides', [])
-        audio_data = data.get('audio', '')
+        return jsonify({
+            'error': 'Funcionalidade de exportação de vídeo temporariamente desabilitada. Use apenas transcrição por enquanto.',
+            'status': 'disabled'
+        }), 503
         
-        if not slides:
-            return jsonify({'error': 'Nenhum slide fornecido'}), 400
-        
-        # Criar hash único para cache de vídeo
-        content_hash = hashlib.md5(json.dumps(slides, sort_keys=True).encode()).hexdigest()
-        cache_video_path = os.path.join(CACHE_FOLDER, f"video_{content_hash}.mp4")
-        
-        # Verificar cache de vídeo
-        if os.path.exists(cache_video_path):
-            return send_file(cache_video_path, as_attachment=True, download_name='vsl_video.mp4')
-        
-        # Criar diretório temporário único
-        temp_dir = os.path.join(app.config['TEMP_FOLDER'], str(int(time.time())))
-        os.makedirs(temp_dir, exist_ok=True)
-        
-        try:
-            # Gerar imagens dos slides em paralelo (otimização crítica)
-            slide_paths = []
-            with concurrent.futures.ThreadPoolExecutor(max_workers=4) as img_executor:
-                # Submeter todas as tarefas de criação de imagem
-                future_to_slide = {
-                    img_executor.submit(create_slide_image, slide['text']): i
-                    for i, slide in enumerate(slides)
-                }
-                
-                # Coletar resultados em ordem
-                slide_images = [None] * len(slides)
-                for future in concurrent.futures.as_completed(future_to_slide):
-                    slide_idx = future_to_slide[future]
-                    img = future.result()
-                    path = os.path.join(temp_dir, f'slide_{slide_idx:03d}.png')
-                    img.save(path, optimize=True, quality=85)
-                    slide_images[slide_idx] = path
-                
-                slide_paths = slide_images
-            
-            # Criar vídeo dos slides com timing otimizado
-            clips = []
-            for i, (path, slide) in enumerate(zip(slide_paths, slides)):
-                # Calcular duração exata baseada nos timestamps do JSON
-                if i < len(slides) - 1:
-                    duration = max(0.5, slides[i + 1]['start'] - slide['start'])  # Mínimo 0.5s
-                else:
-                    duration = 3.0  # valor padrão para último slide
-                
-                # Criar clip com duração otimizada
-                clip = mp.ImageClip(path, duration=duration).set_start(slide['start'])
-                clips.append(clip)
-            
-            # Concatenar clips com configuração otimizada
-            video = mp.CompositeVideoClip(clips, size=(1920, 1080))
-            
-            # Adicionar áudio com otimizações
-            if audio_data:
-                # Decodificar áudio base64
-                try:
-                    audio_bytes = base64.b64decode(audio_data.split(',')[1])
-                    audio_path = os.path.join(temp_dir, 'audio.mp3')
-                    with open(audio_path, 'wb') as f:
-                        f.write(audio_bytes)
-                    
-                    # Carregar áudio e sincronizar
-                    audio = mp.AudioFileClip(audio_path)
-                    video = video.set_duration(audio.duration).set_audio(audio)
-                except Exception as audio_error:
-                    print(f"Erro no processamento de áudio: {audio_error}")
-                    # Continuar sem áudio se houver erro
-            
-            # Exportar vídeo com configurações otimizadas para tamanho e qualidade
-            output_path = os.path.join(temp_dir, 'output.mp4')
-            video.write_videofile(
-                output_path,
-                fps=24,  # Reduzir FPS para menor tamanho
-                codec='libx264',
-                audio_codec='aac',
-                audio_bitrate='128k',  # Reduzir bitrate de áudio
-                bitrate='2000k',  # Reduzir bitrate de vídeo para menor tamanho
-                preset='fast',  # Preset mais rápido
-                temp_audiofile=os.path.join(temp_dir, 'temp_audio.m4a'),
-                remove_temp=True,
-                verbose=False,
-                logger=None  # Desabilitar logs verbose
-            )
-            
-            # Copiar para cache antes de enviar
-            import shutil
-            shutil.copy2(output_path, cache_video_path)
-            
-            return send_file(output_path, as_attachment=True, download_name='vsl_video.mp4')
-            
-        finally:
-            # Limpeza assíncrona de arquivos temporários
-            def cleanup_temp_files():
-                time.sleep(2)  # Aguardar download completar
-                try:
-                    import shutil
-                    shutil.rmtree(temp_dir, ignore_errors=True)
-                except:
-                    pass
-            
-            # Executar limpeza em background
-            cleanup_thread = threading.Thread(target=cleanup_temp_files)
-            cleanup_thread.daemon = True
-            cleanup_thread.start()
-            
     except Exception as e:
         print(f"Erro na exportação de vídeo: {str(e)}")
         return jsonify({'error': f'Erro interno: {str(e)}'}), 500
